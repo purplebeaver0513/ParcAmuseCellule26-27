@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f8ef">
+<title>BioParc Aquatique — L’archipel du vivant</title>
+<style>
+:root{
+  --paper:#f7f8ef;
+  --ink:#29443e;
+  --green:#31554a;
+  --line:#d1dfc6
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font:15px/1.65 Arial,sans-serif
+}
+button,input,a{font:inherit}
+button,a{touch-action:manipulation}
+button{
+  cursor:pointer;
+  border:1px solid var(--line);
+  background:#fffef6;
+  color:inherit;
+  border-radius:12px;
+  padding:10px 15px
+}
+button:hover{background:#e4efd7}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,a:focus-visible,input:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid #9b7ab7;
+  outline-offset:3px
+}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+h1{
+  font-size:clamp(38px,6vw,70px);
+  letter-spacing:-2px;
+  line-height:1.05
+}
+h2{font-size:27px}
+h3{font-size:24px;line-height:1.2}
+small,.muted{color:#778773}
+.eyebrow{font-size:10px;letter-spacing:2px;font-weight:bold}
+header,main,footer{
+  max-width:1480px;
+  margin:auto;
+  padding:24px 36px
+}
+header{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  border-bottom:1px solid var(--line);
+  align-items:center
+}
+.brand{
+  font-size:30px;
+  letter-spacing:-1px;
+  font-weight:bold;
+  text-decoration:none
+}
+.brand span{font-weight:normal;color:#719888}
+nav{display:flex;gap:10px;flex-wrap:wrap}
+.hero{
+  padding:32px 0 38px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:25px
+}
+.hero p{max-width:620px;margin-top:18px;color:#748175}
+.hero em{color:#699888;font-style:normal}
+.ticket{
+  padding:28px;
+  background:#e4ecdb;
+  border:1px solid #cbd9bd;
+  border-radius:16px;
+  transform:rotate(3deg);
+  font-size:23px;
+  min-width:225px
+}
+.ticket small{display:block;font-size:12px;margin-top:12px}
+.section-title{margin-bottom:16px}
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 320px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  overflow:hidden;
+  background:#e3eee3
+}
+.map-shell{min-width:0}
+.toolbar,.map-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 16px;
+  flex-wrap:wrap
+}
+.toolbar button{padding:5px 11px}
+.toolbar small{font-size:11px}
+.toolbar .tools{display:flex;gap:5px;align-items:center}
+.viewport{
+  overflow:auto;
+  min-height:360px;
+  display:flex;
+  align-items:center
+}
+.viewport.zoomed{display:block}
+.viewport>svg{display:block;width:100%;height:auto;flex-shrink:0}
+.map-footer button{font-size:11px;padding:7px 10px}
+.panel{
+  padding:24px;
+  background:#fffef6;
+  border-left:1px solid var(--line)
+}
+.panel-icon{
+  font-size:58px;
+  display:block;
+  color:#6d9786;
+  background:#e3eedb;
+  border-radius:16px;
+  text-align:center;
+  margin:15px 0
+}
+.panel h3{margin-bottom:16px}
+.panel p{font-size:13px;margin-bottom:18px}
+.primary{
+  background:var(--green);
+  color:#fffdf0;
+  border-color:var(--green)
+}
+.primary:hover{background:#477762}
+.panel .primary{width:100%}
+.panel-controls{
+  display:flex;
+  justify-content:space-between;
+  margin-top:20px
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin:20px 0 32px
+}
+.card{
+  text-align:left;
+  padding:18px;
+  display:flex;
+  gap:12px;
+  align-items:center
+}
+.card-icon{font-size:28px;color:#79936b}
+.card strong{font-size:14px;display:block;line-height:1.3}
+.card small{display:block;font-size:10px}
+.done{border-color:#97b76b}
+.progress{
+  margin:18px 0 32px;
+  padding:16px 20px;
+  background:#e9efda;
+  border-radius:15px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center
+}
+.project-note{padding:24px;background:#e8eddc;border-radius:18px}
+.project-note p{max-width:900px;margin-top:10px}
+.expanded{
+  position:fixed;
+  inset:10px;
+  z-index:10;
+  box-shadow:0 0 0 40px #203d3199
+}
+.expanded .map-shell{display:flex;flex-direction:column}
+.expanded .viewport{flex:1;min-height:0}
+.expanded .viewport:not(.zoomed)>svg{
+  max-height:calc(100dvh - 155px)
+}
+.expanded .panel{overflow:auto}
+.locked{overflow:hidden}
+footer{
+  font-size:12px;
+  color:#7c8c73;
+  border-top:1px solid var(--line)
+}
+.water-label{
+  font-size:10px;
+  letter-spacing:3px;
+  fill:#457f83;
+  opacity:.42
+}
+.compass-text{font-size:9px;fill:#7b9275}
+.station-pin,.map-service{cursor:pointer;outline:none}
+.pin-halo,.service-halo{fill:#fff9db;opacity:0}
+.pin-dot{fill:#fcfbf0;stroke:#eff5dd;stroke-width:3}
+.pin-num{font-size:12px;font-weight:bold;fill:#526e5c}
+.pin-label-bg{fill:#fffdf2;stroke:#cdd9bf;stroke-width:.8}
+.pin-label,.kiosk-label{font-size:10px;fill:#526b56}
+.station-pin.selected .pin-dot,.station-pin:hover .pin-dot{
+  fill:#557f70
+}
+.station-pin.selected .pin-num,.station-pin:hover .pin-num{
+  fill:#fffdf2
+}
+.station-pin:focus-visible .pin-label-bg{
+  stroke:#9478af;
+  stroke-width:3
+}
+.map-service:hover .service-halo,
+.map-service.selected .service-halo,
+.map-service:focus-visible .service-halo{opacity:.6}
+.station-pin.done .pin-dot{stroke:#9bbd69;stroke-width:4}
+.river-dashes{animation:river 14s linear infinite}
+.turbine-rotor{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:turn 8s linear infinite
+}
+.fall-lines{animation:river 1.4s linear infinite}
+.park-walker{
+  animation:walk var(--walk-time) linear var(--walk-delay) infinite alternate
+}
+.walker-body{animation:bob .65s ease-in-out infinite alternate}
+.walker-leg{
+  transform-box:fill-box;
+  transform-origin:50% 0;
+  animation:step .65s ease-in-out infinite alternate
+}
+.leg-right{animation-direction:alternate-reverse}
+.visitors-paused #park-visitors *{
+  animation-play-state:paused!important
+}
+@keyframes river{to{stroke-dashoffset:-160}}
+@keyframes turn{to{transform:rotate(360deg)}}
+@keyframes walk{
+  to{transform:translate(var(--walk-x),var(--walk-y))}
+}
+@keyframes bob{to{transform:translateY(-.6px)}}
+@keyframes step{
+  from{transform:rotate(-18deg)}
+  to{transform:rotate(18deg)}
+}
+dialog{
+  width:min(740px,calc(100% - 24px));
+  max-height:90dvh;
+  border:1px solid #cbd9bd;
+  border-radius:22px;
+  background:#fffef6;
+  color:var(--ink);
+  padding:28px
+}
+dialog::backdrop{
+  background:#203d3199;
+  backdrop-filter:blur(4px)
+}
+.dialog-head{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:center;
+  margin-bottom:18px
+}
+.dialog-head button{font-size:23px;padding:2px 12px}
+.dialog-copy p{margin:12px 0 22px}
+.dialog-copy article{
+  border-top:1px solid var(--line);
+  padding:20px 0
+}
+.dialog-copy article h3{font-size:21px}
+.stage{
+  padding:24px;
+  background:#e8efe1;
+  border:1px solid var(--line);
+  border-radius:17px;
+  margin:18px 0;
+  min-height:145px;
+  text-align:center
+}
+.stage strong{font-size:24px}
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:18px
+}
+.status{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:10px 14px;
+  background:#f0f3e6;
+  border-radius:10px;
+  margin:14px 0;
+  font-size:13px
+}
+.feedback{
+  min-height:30px;
+  font-size:13px;
+  color:#5c875a;
+  margin-top:12px
+}
+.feedback.error{color:#ac635e}
+.note{font-size:12px;color:#829078;margin-top:15px}
+.big-symbol{font-size:56px;display:block;line-height:1.3}
+.tile-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px
+}
+.tile{min-height:70px}
+.selected-answer{background:#d5e6b3}
+.sequence{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  justify-content:center
+}
+.base{
+  padding:8px 13px;
+  background:#f7f4e8;
+  border:1px solid #d4d8ba;
+  border-radius:10px;
+  font-weight:bold
+}
+.base.active{outline:2px solid #a18ab4}
+.base.filled{background:#cfdfa9}
+.tank{
+  height:185px;
+  width:170px;
+  border:5px solid #90aaa2;
+  border-radius:10px 10px 25px 25px;
+  position:relative;
+  overflow:hidden;
+  background:#f7faf0;
+  margin:14px auto
+}
+.tank-water{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  background:#7ab7c2;
+  transition:height .15s
+}
+.tank-target{
+  position:absolute;
+  width:100%;
+  border-top:2px dashed #719653;
+  border-bottom:2px dashed #719653;
+  background:#d4e5a666
+}
+.tank-label{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:25px
+}
+.water-slider{width:min(100%,350px);accent-color:#64978b}
+.race-stage{
+  height:280px;
+  padding:0;
+  position:relative;
+  overflow:hidden;
+  background:#a0d0cc
+}
+.race-track{
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(33.333% - 2px),
+    #f3f3cc99 calc(33.333% - 2px),
+    #f3f3cc99 33.333%
+  )
+}
+.race-player{
+  position:absolute;
+  left:12%;
+  top:50%;
+  width:42px;
+  height:33px;
+  border:8px solid #e6ae83;
+  border-radius:50%;
+  background:#c7e1d4;
+  transform:translateY(-50%);
+  transition:top .12s;
+  z-index:2
+}
+.race-player:after{
+  content:'';
+  position:absolute;
+  left:6px;
+  top:-8px;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#efd0ad
+}
+.race-obstacle{
+  position:absolute;
+  width:25px;
+  height:25px;
+  border:5px solid #f6f0cd;
+  background:#98afa6;
+  border-radius:50%;
+  transform:translateY(-50%)
+}
+.race-hit .race-player{border-color:#c57476}
+.meter{
+  height:8px;
+  background:#dee8d3;
+  border-radius:8px;
+  overflow:hidden
+}
+.meter span{
+  display:block;
+  height:100%;
+  background:#85a871;
+  width:0
+}
+.cell{
+  min-height:230px;
+  border:7px solid #b0bda2;
+  border-radius:46%;
+  position:relative;
+  background:#dfebe1;
+  margin:15px auto
+}
+.cell button{
+  position:absolute;
+  font-size:11px;
+  padding:12px;
+  border-radius:40%;
+  background:#d8c5e6;
+  border-color:#aa8fb9
+}
+.cell button:nth-child(1){left:40%;top:30%}
+.cell button:nth-child(2){
+  left:12%;
+  top:63%;
+  background:#edc6a0
+}
+.cell button:nth-child(3){
+  right:10%;
+  top:60%;
+  background:#c9d7a4
+}
+.cell button:nth-child(4){
+  left:12%;
+  top:12%;
+  background:#eadbae
+}
+.medal{font-size:64px;text-align:center}
+.passport-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px
+}
+.passport-grid button{font-size:11px}
+.passport-grid span{display:block;font-size:28px}
+@media(max-width:1000px){
+  .cards{grid-template-columns:repeat(3,1fr)}
+  header,main,footer{padding:20px}
+  .layout{grid-template-columns:minmax(0,1fr) 280px}
+  .panel{padding:18px}
+  .ticket{display:none}
+}
+@media(max-width:700px){
+  header{flex-wrap:wrap}
+  .hero{padding:22px 0}
+  .layout{display:block}
+  .panel{border-left:0;border-top:1px solid var(--line)}
+  .viewport{min-height:0}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .card{padding:12px}
+  .expanded{overflow:auto}
+  .expanded .viewport{min-height:250px}
+  .expanded .viewport:not(.zoomed)>svg{max-height:none}
+  .expanded .panel{overflow:visible}
+  dialog{padding:20px}
+  .progress{flex-wrap:wrap}
+  .tile-grid{grid-template-columns:repeat(2,1fr)}
+  .passport-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{
+    animation:none!important;
+    transition:none!important
+  }
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <a class="brand" href="#">bio<span>parc</span> ≈</a>
+  <nav>
+    <button id="project-button">Le projet</button>
+    <button id="passport-button">
+      Mon carnet · <b data-progress>0/16</b>
+    </button>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <p class="eyebrow">BIENVENUE DANS L’ARCHIPEL DU VIVANT</p>
+      <h1>Le vivant,<br>les pieds dans <em>l’eau.</em></h1>
+      <p>
+        Des îles à explorer, des attractions à découvrir et
+        16 défis pour comprendre la biologie.
+      </p>
+    </div>
+    <div class="ticket">
+      16 escales.<br>Une aventure.
+      <small>Entrée libre · Curiosité illimitée</small>
+    </div>
+  </section>
+
+  <h2 class="section-title">À chaque île, sa découverte.</h2>
+
+  <section class="layout" id="layout">
+    <div class="map-shell">
+      <div class="toolbar">
+        <small>Clique sur une attraction.</small>
+        <div class="tools">
+          <button id="zoom-out" aria-label="Réduire le plan">−</button>
+          <small id="zoom-label">100 %</small>
+          <button id="zoom-in" aria-label="Agrandir le plan">+</button>
+          <button id="expand" aria-label="Agrandir l’affichage du parc">⤢</button>
+        </div>
+      </div>
+
+      <div class="viewport" id="viewport"></div>
+
+      <div class="map-footer">
+        <button id="people-toggle" aria-pressed="false">
+          Ⅱ Pause des passants
+        </button>
+        <button id="boat-toggle">▷ Faire un tour en bouée</button>
+      </div>
+    </div>
+
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </section>
+
+  <div class="progress">
+    <span>Ton carnet d’exploration : <b data-progress>0/16</b></span>
+    <span class="muted">
+      Termine les défis pour obtenir des tampons.
+    </span>
+  </div>
+
+  <h2>Toutes les découvertes</h2>
+  <div class="cards" id="cards"></div>
+
+  <section class="project-note">
+    <h3>Un parc imaginaire. De vrais mécanismes.</h3>
+    <p>
+      Les attractions sont des analogies. Le parc réunit des idées liées
+      aux cellules animales et végétales ainsi qu’aux systèmes vivants :
+      il ne représente pas une seule cellule réelle.
+    </p>
+  </section>
+</main>
+
+<footer>
+  BioParc Aquatique · Projet de biologie en français ·
+  Progression enregistrée sur ce navigateur.
+</footer>
+
+<dialog id="dialog" aria-labelledby="dialog-title">
+  <div class="dialog-head">
+    <h2 id="dialog-title"></h2>
+    <button id="close-dialog" aria-label="Fermer">×</button>
+  </div>
+  <div id="dialog-body" class="dialog-copy"></div>
+</dialog>
+
+<script>
+'use strict';
+
+/* =========================
+   ATTRACTIONS ET EXPLICATIONS
+   ========================= */
+
+const STATIONS = [
+  {
+    id:"cils",n:1,
+    name:"Le Portique des Cils",
+    short:"Entrée · Cils",
+    icon:"〰",point:[555,691],color:"mint",
+    text:"À l’entrée du parc, un portique de sécurité inspiré des cils vérifie que les visiteurs n’apportent pas d’objets dangereux. Il contribue ainsi à assurer la sécurité de tout le monde. Dans la nature, les cils servent à déplacer une cellule ou à faire circuler un liquide : leur rôle de détecteur est donc une invention pour mon parc."
+  },
+  {
+    id:"paroi",n:2,
+    name:"Le Dôme Protecteur",
+    short:"Dôme · Paroi",
+    icon:"⌒",point:[1040,100],color:"mint",
+    text:"Le dôme qui entoure mon parc représente la paroi cellulaire. Il protège les visiteurs et délimite le parc, comme la paroi soutient et protège une cellule végétale. Pour entrer dans le parc, les visiteurs doivent passer par l’entrée principale et son portique de sécurité."
+  },
+  {
+    id:"decomposition",n:3,
+    name:"L’Éco-Compost",
+    short:"Compost",
+    icon:"♻",point:[460,647],color:"sand",
+    text:"En explorant le parc, tu trouveras des poubelles autour des îles. Elles représentent la décomposition, car certains déchets organiques peuvent être décomposés par des organismes comme les bactéries et les champignons. Les visiteurs doivent donc trier leurs déchets pour que les matières organiques puissent être compostées."
+  },
+  {
+    id:"photosynthese",n:4,
+    name:"La Plage Photosynthèse",
+    short:"Plage Photosynthèse",
+    icon:"☀",point:[963,597],color:"sand",
+    text:"Après quelque temps à explorer mon parc aquatique, tu découvriras une plage où tu pourras te baigner et te détendre au soleil. Cette zone représente la photosynthèse, puisqu’elle réunit l’eau et la lumière du Soleil. Dans les plantes, la chlorophylle capte l’énergie lumineuse. Cette énergie permet de fabriquer des sucres à partir d’eau et de dioxyde de carbone, tout en libérant du dioxygène. Les visiteurs profitent du soleil, mais ils ne réalisent pas eux-mêmes la photosynthèse !"
+  },
+  {
+    id:"reticulum",n:5,
+    name:"La Course du R.E.",
+    short:"Course du R.E.",
+    icon:"⇄",point:[218,411],color:"aqua",
+    text:"Si tu préfères bouger plutôt que te détendre sur la plage, tu peux participer à une course dans l’eau. Le but est de traverser le parcours et d’atteindre l’arrivée avant les autres participants. Cette attraction représente le réticulum endoplasmique, ou R.E., qui participe à la fabrication et au transport de certaines molécules. Dans mon parc, les visiteurs prennent la place des protéines et des lipides."
+  },
+  {
+    id:"osmose",n:6,
+    name:"La Cascade Osmose",
+    short:"Cascade Osmose",
+    icon:"≋",point:[589,123],color:"aqua",
+    text:"En poursuivant ton exploration, tu découvriras une grande cascade. Elle évoque le déplacement de l’eau dans les plantes. L’osmose permet notamment à l’eau d’entrer dans les cellules des racines à travers une membrane. Dans le parc, une pompe fait monter l’eau avant qu’elle retombe dans la cascade. La cascade rappelle donc la circulation de l’eau, même si elle ne fonctionne pas réellement par osmose."
+  },
+  {
+    id:"circulation",n:7,
+    name:"La Rivière Circulatoire",
+    short:"Rivière lente",
+    icon:"↻",point:[349,458],color:"aqua",
+    text:"Tu te demandes peut-être comment te rendre d’une attraction à l’autre. C’est le rôle de la rivière lente ! Mon parc est une grande étendue d’eau parsemée d’îles, et la rivière transporte les visiteurs entre les attractions. Elle représente le système circulatoire, qui transporte notamment le dioxygène et les nutriments vers les cellules. Dans cette comparaison, les attractions représentent les cellules et les visiteurs représentent les substances transportées."
+  },
+  {
+    id:"flagelle",n:8,
+    name:"Les Turbines Flagelles",
+    short:"Turbines Flagelles",
+    icon:"∿",point:[842,459],color:"aqua",
+    text:"Pour faire avancer les bouées dans la rivière lente, il faut mettre l’eau en mouvement. C’est pourquoi mon parc possède des turbines inspirées des flagelles. Un flagelle est un prolongement qui permet à certaines cellules de se déplacer. Dans le parc, les turbines créent un courant qui entraîne les visiteurs. Comme les flagelles, elles consomment de l’énergie pour produire un mouvement."
+  },
+  {
+    id:"controle",n:9,
+    name:"Les Points de Contrôle",
+    short:"Point de contrôle",
+    icon:"✓",point:[614,508],color:"coral",
+    text:"Pendant ton exploration, tu rencontreras plusieurs points de contrôle. Tu pourras y trouver de l’information, assister à des démonstrations et vérifier que tu peux poursuivre ton parcours en toute sécurité. Ils représentent les points de contrôle du cycle cellulaire. Ceux-ci permettent notamment de vérifier l’état de l’ADN et la préparation de la cellule avant sa division. Lorsque ces contrôles fonctionnent mal, des cellules peuvent se multiplier de manière incontrôlée, ce qui peut contribuer au développement d’un cancer."
+  },
+  {
+    id:"noyau",n:10,
+    name:"La Sphère du Noyau",
+    short:"Noyau · Infos",
+    icon:"◎",point:[556,346],color:"lavender",
+    text:"Sur l’île centrale se trouve une grande sphère d’information. Elle représente le noyau d’une cellule. Au lieu de contenir de l’ADN, c’est-à-dire de l’acide désoxyribonucléique, elle rassemble les informations et les consignes du parc. Tout comme le noyau contient des instructions utiles à la cellule, cette sphère contient les renseignements dont les visiteurs ont besoin pour explorer le parc."
+  },
+  {
+    id:"mitochondries",n:11,
+    name:"Mitodrinkia",
+    short:"Mitodrinkia",
+    icon:"ϟ",point:[634,414],color:"coral",
+    text:"Sur l’île centrale, tu trouveras Mitodrinkia, une boutique qui sert de délicieuses boissons pour faire le plein d’énergie. Une deuxième boutique se trouve tout en bas à droite du parc. Ces boutiques représentent les mitochondries, qui transforment l’énergie des nutriments en une forme utilisable par la cellule : l’ATP, ou adénosine triphosphate. Dans mon parc, les boissons jouent le rôle d’un ravitaillement pour les visiteurs."
+  },
+  {
+    id:"golgi",n:12,
+    name:"Les Toboggans de Golgi",
+    short:"Toboggans de Golgi",
+    icon:"≋",point:[218,603],color:"coral",
+    text:"L’appareil de Golgi est représenté par une série de toboggans aquatiques. Leurs formes courbées et superposées rappellent les sacs aplatis de cet organite, appelés citernes. Dans une cellule, l’appareil de Golgi modifie, trie et emballe certaines molécules avant leur transport. Dans mon parc, les toboggans dirigent plutôt l’eau et les visiteurs vers différents bassins."
+  },
+  {
+    id:"ribosomes",n:13,
+    name:"Le Resto des Ribosomes",
+    short:"Resto Ribosomes",
+    icon:"⋈",point:[822,231],color:"sand",
+    text:"Près de l’île centrale, un pont te conduit à mon restaurant de côtes ! Les côtes sont riches en protéines, ce qui rappelle le rôle des ribosomes. Dans une cellule, les ribosomes assemblent des acides aminés pour fabriquer des protéines. Mon restaurant représente donc un lieu de préparation, même si cuisiner des côtes et fabriquer des protéines sont deux processus différents."
+  },
+  {
+    id:"lysosome",n:14,
+    name:"La Limonade du Lysosome",
+    short:"Limonade Lysosome",
+    icon:"◉",point:[470,414],color:"sand",
+    text:"Sur l’île centrale, tu trouveras aussi un stand de limonade. Cette boisson acidulée rappelle le milieu acide qui se trouve à l’intérieur des lysosomes. Les lysosomes contiennent des enzymes qui décomposent certaines molécules et certains composants usés de la cellule. Le lien avec la limonade est donc son acidité : la limonade ne remplace pas les enzymes digestives."
+  },
+  {
+    id:"vacuole",n:15,
+    name:"Le Bassin de la Vacuole",
+    short:"Bassin Vacuole",
+    icon:"◒",point:[1030,367],color:"aqua",
+    text:"Un parc aquatique ne serait pas complet sans un grand bassin profond où l’on peut plonger ! Dans mon parc, ce bassin entoure une petite île centrale. Il représente la vacuole, car il contient une grande quantité d’eau. Dans une cellule végétale, la vacuole stocke notamment de l’eau et aide la cellule à rester ferme."
+  },
+  {
+    id:"cytoplasme",n:16,
+    name:"Le Lagon Cytoplasme",
+    short:"Lagon Cytoplasme",
+    icon:"≈",point:[762,128],color:"aqua",
+    text:"Finalement, l’eau qui entoure les îles représente le cytoplasme. Plus précisément, elle évoque le cytosol, sa partie liquide, dans lequel se trouvent différentes structures cellulaires. Dans mon parc, les attractions sont installées sur des îles entourées d’eau. Cette disposition rappelle les organites répartis à l’intérieur d’une cellule."
+  }
+];
+
+/* =========================
+   DESSIN DU PARC EN SVG
+   ========================= */
+
+function makeParkMap(){
+  const palms=[
+    [94,110,1],[299,108,.85],[431,318,.85],
+    [463,467,.9],[642,468,.8],[857,192,.8],
+    [758,283,.8],[1038,278,.75],[869,637,1],
+    [1069,604,.75],[1012,527,.8],[338,659,.9],
+    [115,628,.85],[396,645,.75],[104,426,.75],
+    [474,90,.7]
+  ];
+
+  const riverRoute=
+    'M556 648C478 608 402 533 372 445C345 367 359 298 383 234C399 190 402 149 450 153C491 157 503 192 550 183C593 175 615 152 663 151C723 136 785 125 845 143C907 158 938 194 931 242C924 292 888 335 839 363C796 388 777 425 751 481C713 557 642 617 556 648Z';
+
+  const checkpoints=[
+    [149,101,.48,'nord de la Course du R.E.'],
+    [144,395,.55,'sortie de la Course du R.E.'],
+    [304,650,.58,'Toboggans de Golgi'],
+    [584,648,.56,'entrée principale'],
+    [581,484,.6,'île centrale'],
+    [1009,292,.42,'île de la Vacuole'],
+    [976,569,.6,'Plage Photosynthèse']
+  ];
+
+  const trashCans=[
+    [139,105],[133,387],[300,206],[247,355],
+    [456,321],[441,391],[485,440],[517,483],
+    [566,557],[614,452],[676,395],[653,301],
+    [769,241],[856,254],[1028,321],[130,639],
+    [317,625],[867,649],[927,517],[1064,530],
+    [1104,609],[1058,675],[993,665],[538,674],
+    [581,621]
+  ];
+
+  const walkers=[
+    [557,458,0,68,16],[556,365,0,32,12],
+    [490,390,40,12,14],[584,403,34,-8,13],
+    [680,297,66,-35,20],[774,252,32,10,12],
+    [542,654,5,-34,12],[572,620,4,38,13],
+    [920,645,52,-5,17],[982,582,51,17,18],
+    [1005,532,48,13,16],[1087,568,-9,40,15],
+    [170,199,62,0,18],[204,326,31,22,15],
+    [139,620,22,16,12],[155,134,0,40,15],
+    [1021,301,18,-3,12],[1060,652,-41,-3,15]
+  ];
+
+  const shirts=[
+    '#b8756c','#658daa','#d1ad64',
+    '#829f6a','#a28bb3','#ca9873'
+  ];
+  const skins=['#efd0ad','#c68d62','#8f6048','#d5a079'];
+  const parasols=[
+    [904,562,'#e7ad7d'],[961,536,'#9fbdb0'],
+    [1034,587,'#ceb4d9'],[1006,652,'#e7ad7d'],
+    [878,603,'#a4bb79']
+  ];
+
+  return `
+  <svg id="park-svg" viewBox="0 0 1180 760"
+       role="group"
+       aria-label="Plan interactif de BioParc Aquatique, adapté du dessin fourni : course à gauche, île centrale, bassins à droite et toboggans en bas à gauche">
+    <defs>
+      <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+        <stop stop-color="#b3ddd8"/>
+        <stop offset="1" stop-color="#73b5b9"/>
+      </linearGradient>
+
+      <linearGradient id="deep-water" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="#71babd"/>
+        <stop offset="1" stop-color="#438b9e"/>
+      </linearGradient>
+
+      <linearGradient id="island" x1="0" y1="0" x2="0" y2="1">
+        <stop stop-color="#f8edcd"/>
+        <stop offset="1" stop-color="#e4d9ad"/>
+      </linearGradient>
+
+      <linearGradient id="green-roof" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="#d4de98"/>
+        <stop offset="1" stop-color="#8faa68"/>
+      </linearGradient>
+
+      <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="#e9eee3"/>
+        <stop offset=".5" stop-color="#bad6cc"/>
+        <stop offset="1" stop-color="#7ca6a2"/>
+      </linearGradient>
+
+      <linearGradient id="slide-pink" x1="0" y1="0" x2="1" y2="0">
+        <stop stop-color="#c9878d"/>
+        <stop offset=".5" stop-color="#edbbc0"/>
+        <stop offset="1" stop-color="#d79194"/>
+      </linearGradient>
+
+      <linearGradient id="purple-glass" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="#e4d9ec"/>
+        <stop offset="1" stop-color="#ac94c1"/>
+      </linearGradient>
+
+      <pattern id="water-lines" width="98" height="64"
+               patternUnits="userSpaceOnUse">
+        <path d="M9 20q8-4 17 0t17 0"
+              fill="none" stroke="#e9faf3"
+              stroke-width="1.2" opacity=".3"/>
+        <path d="M62 47q8-4 16 0t15 0"
+              fill="none" stroke="#e9faf3"
+              stroke-width="1" opacity=".35"/>
+      </pattern>
+
+      <pattern id="sand-dots" width="23" height="23"
+               patternUnits="userSpaceOnUse">
+        <circle cx="7" cy="4" r=".9" fill="#bba879" opacity=".25"/>
+        <circle cx="19" cy="17" r=".8" fill="#c5b583" opacity=".25"/>
+      </pattern>
+
+      <filter id="land-shadow" x="-20%" y="-20%"
+              width="150%" height="150%">
+        <feDropShadow dx="0" dy="6" stdDeviation="5"
+                      flood-color="#2c7477" flood-opacity=".19"/>
+      </filter>
+
+      <g id="palm">
+        <ellipse cx="9" cy="11" rx="23" ry="8"
+                 fill="#518177" opacity=".17"/>
+        <path d="M0 9q7-23 1-52"
+              stroke="#a4946c" stroke-width="6" stroke-linecap="round"/>
+        <path d="M1 8q7-23 1-50"
+              stroke="#d2bd84" stroke-width="2"/>
+        <path d="M1-42q-25-18-34 0 21-4 34 4-30-4-30 16 13-17 31-15-10 9-3 28 4-23 7-28 22 4 26 21 2-27-26-22 17-12 35-6-15-23-37 2-3-25-17-27 9 14 14 27Z"
+              fill="#8aa56a" stroke="#708c54" stroke-width=".7"/>
+        <path d="M1-42q-12-14-26-5M4-41q17-10 28-5"
+              stroke="#b7cd8d" stroke-width="2" fill="none"/>
+        <circle cx="2" cy="-39" r="4" fill="#a18b5d"/>
+      </g>
+
+      <g id="bush">
+        <ellipse rx="18" ry="7" fill="#a7ba83"/>
+        <circle cx="-9" cy="-4" r="9" fill="#b5c993"/>
+        <circle cx="4" cy="-6" r="11" fill="#a4bd7d"/>
+        <circle cx="14" cy="-2" r="6" fill="#c5d7a5"/>
+      </g>
+
+      <g id="sphereland">
+        <ellipse cy="35" rx="56" ry="14" fill="#91aba0" opacity=".3"/>
+        <path d="M-47 30v7q47 23 94 0v-7" fill="#9bb0a0"/>
+        <ellipse cy="30" rx="47" ry="14"
+                 fill="#e6e8d2" stroke="#98b3a6" stroke-width="2"/>
+        <circle cy="-8" r="46"
+                fill="url(#glass)" stroke="#7a9e97" stroke-width="2"/>
+        <ellipse cy="-8" rx="24" ry="46"
+                 fill="none" stroke="#8fafa4" stroke-width="1.4"/>
+        <path d="M-45-21q45 14 90 0M-45 5q45 18 90 0M-36 21q36 11 72 0"
+              fill="none" stroke="#8fafa4" stroke-width="1.5"/>
+        <path d="M0-54v92" stroke="#84a59a" stroke-width="1.3"/>
+        <path d="M-32-24q7-19 22-22" stroke="#f6fcf0"
+              stroke-width="4" opacity=".6" stroke-linecap="round"
+              fill="none"/>
+        <rect x="-11" y="13" width="22" height="31"
+              rx="10" fill="#5d8b89"/>
+        <circle cy="-9" r="12" fill="#f3f5e5" opacity=".85"/>
+        <text text-anchor="middle" y="-4" fill="#5a8277"
+              style="font:600 17px Georgia,serif">i</text>
+      </g>
+
+      <g id="drink-kiosk">
+        <ellipse cy="17" rx="35" ry="9" fill="#a59c72" opacity=".2"/>
+        <path d="M-27-20v37h54v-37" fill="#edc5aa" stroke="#b19378"/>
+        <path d="M-30-21v8h60v-8L0-37Z" fill="#bb8c81"/>
+        <path d="M-30-21L0-37l-5 20Z" fill="#e7b39a"/>
+        <path d="M-26-12h52v8h-52Z" fill="#f7ecd2"/>
+        <path d="M-25-12h8v8h-8M-9-12h8v8h-8M7-12h8v8H7M23-12h3v8h-3"
+              fill="#cd9a84"/>
+        <rect x="-20" y="0" width="40" height="12" fill="#997b6c"/>
+        <path d="M-14 0l2-10h8L-2 0M5 0l2-10h8l2 10"
+              fill="#e8b173" stroke="#f4d9b3"/>
+        <path d="M-7-10l3-7M12-10l4-7"
+              stroke="#896c5c" stroke-width="1.5"/>
+        <path d="M-17 16h34" stroke="#d0a88c" stroke-width="3"/>
+      </g>
+
+      <g id="lemon-kiosk">
+        <ellipse cy="16" rx="32" ry="9" fill="#a59c72" opacity=".18"/>
+        <rect x="-24" y="-17" width="48" height="34"
+              rx="3" fill="#e8d7a4" stroke="#b9ab7a"/>
+        <path d="M-30-16h60L21-36H-21Z"
+              fill="#f2e8b9" stroke="#b8aa76"/>
+        <path d="M-21-36h9l-5 20h-10M-3-36h9l3 20H-3M15-36h6l9 20h-12"
+              fill="#b5c085"/>
+        <rect x="-18" y="-5" width="36" height="11" fill="#b4a570"/>
+        <circle cy="-25" r="8" fill="#efcc70" stroke="#d6b458"/>
+        <path d="M-9-26q-4-7 3-8" fill="#8eab65"/>
+        <path d="M-10 7h8l-1-9h-6ZM4 7h8l-1-9H5Z"
+              fill="#f6e8a4" stroke="#e9cc76"/>
+      </g>
+
+      <g id="checkpoint">
+        <ellipse cy="13" rx="19" ry="6" fill="#a29f76" opacity=".2"/>
+        <path d="M-11 13v-36M11 13v-36"
+              stroke="#958c6e" stroke-width="3"/>
+        <rect x="-24" y="-34" width="48" height="29"
+              rx="7" fill="#e5ca90" stroke="#b5a16d"/>
+        <circle cy="-20" r="9" fill="#f6efd8"/>
+        <path d="M-5-20l4 4 8-9" stroke="#89a461"
+              stroke-width="3" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <g id="trash-can">
+        <ellipse cy="3" rx="8" ry="3" fill="#677a5930"/>
+        <path d="M-5-10h10L4 2h-8Z"
+              fill="#69846b" stroke="#4f6957" stroke-width="1"/>
+        <path d="M-6-12h12v3H-6Z"
+              fill="#a2b696" stroke="#5c775e" stroke-width=".8"/>
+        <path d="M-2-14h4v2h-4Z" fill="#6d876b"/>
+        <path d="M-2-4l2-3 2 3M2-4l-2 3-2-3"
+              fill="none" stroke="#e3edd1" stroke-width=".9"/>
+      </g>
+
+      <g id="tiny-boat">
+        <ellipse cy="4" rx="14" ry="7" fill="#ffffff40"/>
+        <ellipse rx="12" ry="8" fill="#e9bd93"
+                 stroke="#b68f6e" stroke-width="1.5"/>
+        <ellipse rx="6" ry="4" fill="#d0e5d9"/>
+        <circle cy="-3" r="3" fill="#f0cca3"/>
+        <path d="M-4 0h8" stroke="#849fac" stroke-width="3"/>
+      </g>
+
+      <g id="turbine">
+        <ellipse cy="11" rx="24" ry="11" fill="#4c949b" opacity=".2"/>
+        <circle r="22" fill="#c4d8ce" stroke="#739792" stroke-width="3"/>
+        <g class="turbine-rotor">
+          <path d="M0-3q-20-22-22-3 6 10 18 8M3 0q22-20 3-22-10 6-8 18M0 3q20 22 22 3-6-10-18-8M-3 0q-22 20-3 22 10-6 8-18"
+                fill="#88b0a2" stroke="#5d8c88" stroke-width="1"/>
+        </g>
+        <circle r="5" fill="#e9efda" stroke="#7a9c91"/>
+      </g>
+    </defs>
+
+    <path d="M64 50Q578 1 1114 54L1150 682Q622 756 30 690Z"
+          fill="#6b9a89" opacity=".16" transform="translate(0 12)"/>
+    <path d="M64 50Q578 1 1114 54L1150 682Q622 756 30 690Z"
+          fill="#d6dbc0" stroke="#afc2a2"
+          stroke-width="16" stroke-linejoin="round"/>
+    <path d="M76 63Q578 15 1102 67L1137 671Q622 739 44 679Z"
+          fill="url(#water)" stroke="#e6e5c9" stroke-width="7"/>
+    <path d="M76 63Q578 15 1102 67L1137 671Q622 739 44 679Z"
+          fill="url(#water-lines)"/>
+    <path d="M72 69Q588-2 1108 73M78 69Q267-5 551 56M550 56Q830-6 1109 73"
+          fill="none" stroke="#f5f6e0" stroke-width="2" opacity=".75"/>
+
+    <g stroke="#aabf9b" stroke-width="2" opacity=".65">
+      ${Array.from({length:23},(_,i)=>
+        `<path d="M${95+i*44} ${43+Math.pow(i-11,2)*.1}v12"/>`
+      ).join('')}
+    </g>
+
+    <!-- Rivière lente -->
+    <path d="M377 447C318 467 227 458 174 435M390 530C340 508 293 475 249 480C198 482 168 499 164 522M759 466C803 493 822 529 861 552M921 270Q941 270 956 268"
+          fill="none" stroke="#83bcc0" stroke-width="38"
+          opacity=".65" stroke-linecap="round"/>
+    <path d="${riverRoute}" fill="none" stroke="#c2e2d6"
+          stroke-width="82" opacity=".38"/>
+    <path id="river-route" d="${riverRoute}"
+          fill="none" stroke="#70acb2" stroke-width="57" opacity=".62"/>
+    <path d="${riverRoute}" fill="none" stroke="#a1cfcc"
+          stroke-width="40" opacity=".48"/>
+    <path d="${riverRoute}" fill="none" stroke="#d6ede1"
+          stroke-width="2" stroke-dasharray="4 31"
+          opacity=".65" class="river-dashes"/>
+    <path d="M351 407l8-12 5 14M700 558l13-3-4 13M703 139l11 5-12 6"
+          fill="none" stroke="#d9eee0" stroke-width="2.5" opacity=".8"/>
+    <text class="water-label"
+          transform="translate(359 385) rotate(-86)">
+      RIVIÈRE CIRCULATOIRE
+    </text>
+    <text class="water-label" x="747" y="534"
+          transform="rotate(-28 747 534)">
+      LAGON CYTOPLASME
+    </text>
+    <use href="#tiny-boat" transform="translate(371 441) rotate(80) scale(.7)"/>
+    <use href="#tiny-boat" transform="translate(870 343) rotate(-35) scale(.7)"/>
+
+    <!-- Course du R.E. -->
+    <g id="re-course"
+       aria-label="Course du R.E. : couloirs repliés en U, grande courbe extérieure et deux passerelles">
+      <path d="M136 92L132 190C106 199 94 228 96 274C95 332 105 375 127 408C194 397 266 346 297 288C323 242 326 179 299 136C278 102 240 93 208 105L175 94Z"
+            fill="url(#island)" stroke="#eee7c8"
+            stroke-width="5" filter="url(#land-shadow)"/>
+      <path d="M147 107L144 202C120 207 108 235 109 277C108 328 118 365 136 392C195 377 255 333 282 282C307 235 312 183 287 143C271 117 239 107 212 120L173 108Z"
+            fill="#8dbfc0" stroke="#b4b18d" stroke-width="2"/>
+
+      <path d="M158 106L155 258C153 296 169 324 183 304C198 282 182 216 197 169C205 143 223 125 239 123"
+            fill="none" stroke="#b4b18d" stroke-width="22"
+            stroke-linecap="round"/>
+      <path d="M158 104L155 255C153 293 169 321 183 301C198 279 182 213 197 166C205 140 223 122 239 120"
+            fill="none" stroke="#eee3bd" stroke-width="18"
+            stroke-linecap="round"/>
+
+      <g id="re-lane-tracks" fill="none"
+         stroke="#b4b18d" stroke-width="14"
+         stroke-linecap="round" stroke-linejoin="round">
+        <path id="re-inner-track"
+              d="M134 376C119 339 117 291 123 254C127 228 132 224 135 240L135 266C136 308 159 347 185 328C212 307 205 253 212 206C218 164 224 142 229 131"/>
+        <path id="re-middle-track"
+              d="M147 380C172 370 198 350 216 325C238 294 239 250 237 207C235 168 232 149 229 133"/>
+        <path id="re-outer-track"
+              d="M164 382C192 366 222 341 239 311C260 274 264 241 262 207C260 173 246 148 237 136"/>
+      </g>
+
+      <g fill="none" stroke="#eee3bd" stroke-width="11"
+         stroke-linecap="round" stroke-linejoin="round">
+        <use href="#re-inner-track"/>
+        <use href="#re-middle-track"/>
+        <use href="#re-outer-track"/>
+      </g>
+
+      <path d="M147 204Q218 195 305 209"
+            fill="none" stroke="#9da796" stroke-width="22"/>
+      <path d="M147 200Q218 191 305 205"
+            fill="none" stroke="#f0e5c7" stroke-width="18"/>
+      <path d="M146 191Q218 182 306 196M148 209Q218 200 304 214"
+            fill="none" stroke="#b5a780" stroke-width="1.5"/>
+
+      <path d="M190 316L252 360" stroke="#9da796" stroke-width="20"/>
+      <path d="M190 312L252 356" stroke="#f0e5c7" stroke-width="16"/>
+      <path d="M194 305L256 349M185 318L247 362"
+            stroke="#b5a780" stroke-width="1.5"/>
+
+      <path d="M126 370l24-8M165 384l20 4"
+            stroke="#f8f6df" stroke-width="5"/>
+      <path d="M126 370l24-8M165 384l20 4"
+            stroke="#688d87" stroke-width="5" stroke-dasharray="3 3"/>
+
+      <use href="#tiny-boat"
+           transform="translate(126 289) rotate(88) scale(.65)"/>
+      <use href="#tiny-boat"
+           transform="translate(278 255) rotate(104) scale(.65)"/>
+
+      <ellipse cx="170" cy="148" rx="13" ry="7" fill="#e8ddba"/>
+      <use href="#bush" transform="translate(170 146) scale(.6)"/>
+      <ellipse cx="280" cy="177" rx="11" ry="6" fill="#e8ddba"/>
+      <use href="#bush" transform="translate(280 175) scale(.5)"/>
+    </g>
+
+    <!-- Île centrale -->
+    <path d="M463 274Q501 244 570 260T679 303L694 396Q679 442 624 464L557 590 515 498 431 406Q407 325 463 274Z"
+          fill="#e1d2a2" transform="translate(0 8)"/>
+    <path d="M463 269Q501 239 570 255T679 298L694 391Q679 437 624 459L557 585 515 493 431 401Q407 320 463 269Z"
+          fill="url(#island)" stroke="#f4eacb"
+          stroke-width="5" filter="url(#land-shadow)"/>
+    <path d="M463 269Q501 239 570 255T679 298L694 391Q679 437 624 459L557 585 515 493 431 401Q407 320 463 269Z"
+          fill="url(#sand-dots)"/>
+    <path d="M558 549V417L557 325M557 409L478 387M557 409L638 392M558 323l103-11"
+          stroke="#d6c999" stroke-width="18"
+          fill="none" stroke-linecap="round"/>
+    <path d="M558 549V417L557 325M557 409L478 387M557 409L638 392M558 323l103-11"
+          stroke="#f7f0d6" stroke-width="13"
+          fill="none" stroke-linecap="round"/>
+    <ellipse cx="557" cy="311" rx="71" ry="38"
+             fill="#d7dfbd" stroke="#c4cfa7"/>
+    <use href="#sphereland" transform="translate(556 298)"/>
+    <use href="#drink-kiosk" transform="translate(634 379)"/>
+    <use href="#lemon-kiosk" transform="translate(469 379)"/>
+    <g fill="#b9cf8e">
+      <ellipse cx="487" cy="294" rx="19" ry="12"/>
+      <ellipse cx="623" cy="283" rx="20" ry="10"/>
+      <ellipse cx="607" cy="466" rx="18" ry="9"/>
+    </g>
+
+    <!-- Pont et restaurant -->
+    <path d="M665 312L785 249" stroke="#9ba992" stroke-width="23"/>
+    <path d="M665 305L785 242" stroke="#e0c899" stroke-width="20"/>
+    <path d="M665 305L785 242" stroke="#ac9671"
+          stroke-width="20" stroke-dasharray="2 8"/>
+    <path d="M660 296L780 233M670 315l120-63"
+          stroke="#f2dcb1" stroke-width="3"/>
+    <ellipse cx="820" cy="232" rx="82" ry="54"
+             fill="url(#island)" stroke="#f6eacb"
+             stroke-width="5" filter="url(#land-shadow)"/>
+    <g transform="translate(819 206)">
+      <ellipse cy="19" rx="51" ry="16" fill="#b2a47b" opacity=".2"/>
+      <path d="M-44-15v35h88v-35" fill="#e4c398" stroke="#b99873"/>
+      <path d="M-52-15L0-47l52 32L0 2Z" fill="#bb8f77" stroke="#957762"/>
+      <path d="M-52-15L0-47V1Z" fill="#d3a886"/>
+      <path d="M-38 6h23v11h-23M17 6h23v11H17" fill="#8ea6a0"/>
+      <path d="M-6 5h15v16H-6" fill="#9c8367"/>
+      <path d="M-30-19l50-12M-25-15l50-12"
+            stroke="#e9c59b" stroke-width="2"/>
+      <g fill="#fff1d1" stroke="#c9ae83">
+        <circle cx="-60" cy="17" r="9"/>
+        <circle cx="60" cy="12" r="9"/>
+      </g>
+      <path d="M-60 17v10M60 12v10" stroke="#b39970" stroke-width="2"/>
+    </g>
+
+    <!-- Vacuole : eau autour d’une île -->
+    <g id="vacuole-pool"
+       aria-label="Bassin de la Vacuole : une île au milieu, entourée d’eau profonde">
+      <path d="M1003 175Q1060 158 1091 207L1109 329Q1094 379 1034 391 977 396 954 352L948 238Q958 190 1003 175Z"
+            fill="url(#deep-water)" stroke="#a9d4ce" stroke-width="5"/>
+      <path d="M988 204q39-24 72-1M973 333q15 32 49 36M1076 298q10 35-13 57"
+            stroke="#bde3d7" stroke-width="2" fill="none" opacity=".6"/>
+      <path d="M1013 236Q1042 223 1057 247L1064 286Q1063 318 1036 328 1004 329 997 305L994 269Q994 246 1013 236Z"
+            fill="url(#island)" stroke="#f4e8c8"
+            stroke-width="4" filter="url(#land-shadow)"/>
+      <path d="M1013 236Q1042 223 1057 247L1064 286Q1063 318 1036 328 1004 329 997 305L994 269Q994 246 1013 236Z"
+            fill="url(#sand-dots)"/>
+      <path d="M989 296q-3 29 23 38M1057 238q12 11 15 36"
+            fill="none" stroke="#cde6d7" stroke-width="2" opacity=".65"/>
+      <use href="#bush" transform="translate(1018 306) scale(.7)"/>
+      <path d="M1050 285h30v9h-30" fill="#eee3c4" stroke="#8ea29c"/>
+      <path d="M1052 284v-6h26v6M1069 294v15M1076 294v15"
+            fill="none" stroke="#bfd4c7" stroke-width="2"/>
+    </g>
+
+    <!-- Cascade -->
+    <g transform="translate(588 104)">
+      <ellipse cy="29" rx="74" ry="26" fill="#d5e8d7" opacity=".6"/>
+      <path d="M-64 17V-39l31-9 18-23 40 1 18 26 22 3v58"
+            fill="#a8b5a2" stroke="#859e92" stroke-width="2"/>
+      <path d="M-57-4l15-33 19-5 13-21 26 3 25 27 13 5v21"
+            fill="#c1c9ab"/>
+      <path d="M-32-41h66v61q-34 24-66 0Z"
+            fill="#cdece3" stroke="#a5d2cb"/>
+      <path class="fall-lines"
+            d="M-25-36v60M-12-38v60M0-38v60M13-38v60M25-37v60"
+            stroke="#f3fff1" stroke-width="3"
+            opacity=".7" stroke-dasharray="8 7"/>
+      <ellipse cy="24" rx="48" ry="12" fill="#e5f4df" opacity=".8"/>
+      <path d="M-57 29q55 13 114-1M-64 37q64 18 123-1"
+            fill="none" stroke="#cdeade" stroke-width="2"/>
+    </g>
+
+    <!-- Toboggans de Golgi -->
+    <path d="M98 555Q128 501 228 521T337 610L314 661 123 650Z"
+          fill="url(#island)" stroke="#f2e7c5"
+          stroke-width="5" filter="url(#land-shadow)"/>
+    <ellipse cx="241" cy="629" rx="66" ry="24"
+             fill="url(#deep-water)" stroke="#c4d8b7" stroke-width="6"/>
+    <g stroke="#aeaca0" stroke-width="3">
+      <path d="M133 546v59M162 529v62M208 533v61M263 551v55M291 577v38"/>
+    </g>
+    <path d="M130 576C117 520 240 511 288 558S253 609 230 623"
+          fill="none" stroke="#b78183" stroke-width="17"/>
+    <path d="M130 572C117 516 240 507 288 554S253 605 230 619"
+          fill="none" stroke="url(#slide-pink)" stroke-width="13"/>
+    <path d="M156 590C147 545 235 535 270 567S250 609 246 624"
+          fill="none" stroke="#bd9ca9" stroke-width="15"/>
+    <path d="M156 586C147 541 235 531 270 563S250 605 246 620"
+          fill="none" stroke="#e2c4d5" stroke-width="11"/>
+    <path d="M181 600C176 567 230 557 248 578S267 608 262 625"
+          fill="none" stroke="#bfaf87" stroke-width="14"/>
+    <path d="M181 596C176 563 230 553 248 574S267 604 262 621"
+          fill="none" stroke="#eed5a2" stroke-width="10"/>
+    <circle cx="136" cy="550" r="4" fill="#fdf0cc"/>
+    <circle cx="269" cy="561" r="4" fill="#a0787f"/>
+
+    <!-- Plage -->
+    <path d="M913 503Q983 458 1072 497L1122 551 1134 664Q979 712 850 665 837 603 913 503Z"
+          fill="url(#island)" stroke="#f6e8be"
+          stroke-width="6" filter="url(#land-shadow)"/>
+    <path d="M913 503Q983 458 1072 497L1122 551 1134 664Q979 712 850 665 837 603 913 503Z"
+          fill="url(#sand-dots)"/>
+    <path d="M858 641q-21-63 60-132M846 632q-15-66 62-129"
+          fill="none" stroke="#d8ecd9" stroke-width="3" opacity=".7"/>
+
+    ${parasols.map(([x,y,c])=>`
+      <g transform="translate(${x} ${y})">
+        <ellipse cx="6" cy="12" rx="20" ry="7"
+                 fill="#b6a378" opacity=".15"/>
+        <path d="M0 10v-16" stroke="#a39572" stroke-width="2"/>
+        <path d="M-22-10Q0-42 22-10Q0 1-22-10Z"
+              fill="${c}" stroke="#a39b7d" stroke-width="1"/>
+        <path d="M0-31v27L-12-8Z" fill="#f8ebd0" opacity=".7"/>
+        <path d="M8 15l12 15M15 10l12 15M8 15l7-5m5 20 7-5"
+              stroke="#b0a47d" stroke-width="2"/>
+        <path d="M10 14l7-3 8 13-6 4Z" fill="#f7ecd1"/>
+      </g>
+    `).join('')}
+
+    <g transform="translate(985 470)">
+      <circle r="20" fill="#f1d48e" opacity=".55"/>
+      <g stroke="#ebd59c" stroke-width="2">
+        <path d="M0-31v-7M0 31v7M31 0h7M-31 0h-7M22 22l6 6M-22-22l-6-6M22-22l6-6M-22 22l-6 6"/>
+      </g>
+    </g>
+
+    <!-- Entrée -->
+    <path d="M509 711L547 594h39l28 117Z"
+          fill="#efe4c2" stroke="#d4c69e" stroke-width="2"/>
+    <g transform="translate(555 671)">
+      <path d="M-45 27v-55M45 27v-55"
+            stroke="#90ab85" stroke-width="10"/>
+      <path d="M-52-27Q0-61 52-27v16Q0-43-52-11Z"
+            fill="#d9e4bd" stroke="#789d80" stroke-width="2"/>
+      <text x="0" y="-24" text-anchor="middle"
+            style="font:700 12px Trebuchet MS,sans-serif;letter-spacing:3px;fill:#5d7c60">
+        BIOPARC
+      </text>
+      <g stroke="#ad8cb4" stroke-width="3">
+        <path d="M-32-17v24M-22-20V5M-12-22V4M0-23V2M12-22V4M22-20V5M32-17V7"/>
+      </g>
+    </g>
+
+    <!-- Compost -->
+    <g transform="translate(459 621)">
+      <ellipse cy="20" rx="38" ry="11" fill="#cbd5ac"/>
+      <path d="M-26-5h24v23h-24Z" fill="#9eaf78" stroke="#7e9063"/>
+      <path d="M-29-7h29v5h-29Z" fill="#c1ce9d"/>
+      <path d="M5-5h24v23H5Z" fill="#b8cbd0" stroke="#8da9ab"/>
+      <path d="M2-7h30v5H2Z" fill="#d6e4de"/>
+      <text x="-14" y="11" text-anchor="middle"
+            fill="#f2f4dd" style="font:14px sans-serif">♻</text>
+    </g>
+
+    ${checkpoints.map(([x,y,scale,place])=>`
+      <g class="map-service coral"
+         data-station="controle"
+         role="button" tabindex="0" aria-pressed="false"
+         aria-label="Point de contrôle — ${place}"
+         transform="translate(${x} ${y})">
+        <circle class="service-halo" r="20"/>
+        <use href="#checkpoint" transform="scale(${scale})"/>
+      </g>
+    `).join('')}
+
+    <!-- Mitodrinkia en bas à droite -->
+    <path d="M993 650Q1038 645 1084 651"
+          fill="none" stroke="#f8edcf"
+          stroke-width="9" stroke-linecap="round"/>
+
+    <g id="mitodrinkia-plage" class="map-service coral"
+       data-station="mitochondries"
+       role="button" tabindex="0" aria-pressed="false"
+       aria-label="Mitodrinkia — boutique de la plage, en bas à droite"
+       transform="translate(1087 648)">
+      <circle class="service-halo" r="28"/>
+      <use href="#drink-kiosk" transform="scale(.8)"/>
+      <rect x="-51" y="23" width="102" height="22"
+            rx="11" fill="#fff5df" stroke="#c6ab85"/>
+      <text class="kiosk-label" text-anchor="middle" y="38">
+        Mitodrinkia
+      </text>
+    </g>
+
+    <use href="#turbine" transform="translate(842 433)"/>
+    <use href="#turbine" transform="translate(394 566) scale(.7)"/>
+
+    ${palms.map(([x,y,s])=>`
+      <ellipse cx="${x}" cy="${y+4}"
+               rx="${18*s}" ry="${7*s}" fill="#e5dfb4"/>
+      <use href="#palm" transform="translate(${x} ${y}) scale(${s})"/>
+    `).join('')}
+
+    ${[
+      [120,125],[450,278],[505,484],[665,287],
+      [865,252],[1120,466],[957,686],[177,655],[417,628]
+    ].map(([x,y])=>`
+      <use href="#bush" transform="translate(${x} ${y})"/>
+    `).join('')}
+
+    <g fill="#e4bca3">
+      ${[
+        [429,338],[671,377],[489,451],[788,276],[1010,680]
+      ].map(([x,y])=>`
+        <circle cx="${x}" cy="${y}" r="3"/>
+        <circle cx="${x+7}" cy="${y+4}" r="3"/>
+        <circle cx="${x-5}" cy="${y+6}" r="2"/>
+      `).join('')}
+    </g>
+
+    <g id="park-trash-cans"
+       aria-label="Poubelles de tri réparties autour des îles">
+      ${trashCans.map(([x,y])=>`
+        <use href="#trash-can"
+             transform="translate(${x} ${y}) scale(.82)"/>
+      `).join('')}
+    </g>
+
+    <g id="park-visitors" aria-hidden="true" pointer-events="none">
+      ${walkers.map(([x,y,dx,dy,duration],i)=>`
+        <g transform="translate(${x} ${y})">
+          <g class="park-walker"
+             style="--walk-x:${dx}px;--walk-y:${dy}px;--walk-time:${duration}s;--walk-delay:-${(i*2.7)%duration}s">
+            <ellipse cy="2" rx="5" ry="2" fill="#687b6833"/>
+            <g class="walker-body">
+              <g stroke="#4f6060" stroke-width="1.6"
+                 stroke-linecap="round">
+                <path class="walker-leg leg-left" d="M-1 0l-1 4"/>
+                <path class="walker-leg leg-right" d="M1 0l1 4"/>
+              </g>
+              <path d="M0-6v7M-2-5l-2 5M2-5l2 5"
+                    stroke="${shirts[i%shirts.length]}"
+                    stroke-width="2.4" stroke-linecap="round"/>
+              <circle cy="-9" r="2.7"
+                      fill="${skins[i%skins.length]}"/>
+              <path d="M-2.4-10.4q2.1-3 4.7.2" fill="#675448"/>
+            </g>
+          </g>
+        </g>
+      `).join('')}
+    </g>
+
+    <g id="visitor-boat" transform="translate(556 648)" aria-hidden="true">
+      <ellipse cy="5" rx="23" ry="12" fill="#e7f9e9" opacity=".6"/>
+      <ellipse rx="20" ry="12"
+               fill="#e9b890" stroke="#b5876c" stroke-width="2"/>
+      <ellipse rx="11" ry="7" fill="#d3e9df"/>
+      <path d="M-6 1h12" stroke="#829aad"
+            stroke-width="6" stroke-linecap="round"/>
+      <circle cy="-7" r="5" fill="#f1d0a7"/>
+      <circle cy="-8" r="3" fill="#d4b289"/>
+    </g>
+
+    <g transform="translate(86 709)">
+      <path d="M0-15 5 5 0 1-5 5Z" fill="#7b9275"/>
+      <text y="19" text-anchor="middle" class="compass-text">N</text>
+    </g>
+
+    ${STATIONS.map(s=>{
+      const w=Math.min(174,Math.max(85,s.short.length*6+20));
+      return `
+        <g class="station-pin ${s.color}"
+           data-station="${s.id}"
+           role="button" tabindex="0"
+           aria-label="${s.n}. ${s.name}" aria-pressed="false"
+           transform="translate(${s.point[0]} ${s.point[1]})">
+          <circle class="pin-halo" r="25"/>
+          <rect class="pin-label-bg"
+                x="${-w/2}" y="17" width="${w}" height="27" rx="13.5"/>
+          <text class="pin-label" text-anchor="middle" y="34">
+            ${s.short}
+          </text>
+          <circle class="pin-dot" r="15"/>
+          <text class="pin-num" text-anchor="middle" y="4.5">
+            ${s.n}
+          </text>
+        </g>
+      `;
+    }).join('')}
+  </svg>`;
+}
+
+/* =========================
+   INTERFACE ET SAUVEGARDE
+   ========================= */
+
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const byId=id=>STATIONS.find(s=>s.id===id);
+
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({
+  '&':'&amp;',
+  '<':'&lt;',
+  '>':'&gt;',
+  '"':'&quot;',
+  "'":'&#39;'
+}[c]));
+
+let selected='noyau';
+let zoom=1;
+let expanded=false;
+let passport={};
+let boatFrame=0;
+let boatRunning=false;
+let boatLast=0;
+let boatOffset=0;
+let G=null;
+let raceFrame=0;
+let raceLast=0;
+
+try{
+  const saved=JSON.parse(
+    localStorage.getItem('bioparc-aquatique-v1')||'{}'
+  );
+  for(const s of STATIONS){
+    if(saved?.[s.id]===true)passport[s.id]=true;
+  }
+}catch{}
+
+const total=()=>STATIONS.filter(s=>passport[s.id]).length;
+const markers=()=>$$('.station-pin,.map-service');
+
+function save(){
+  try{
+    localStorage.setItem(
+      'bioparc-aquatique-v1',
+      JSON.stringify(passport)
+    );
+  }catch{}
+}
+
+function updateProgress(){
+  for(const n of $$('[data-progress]')){
+    n.textContent=total()+'/16';
+  }
+
+  for(const p of markers()){
+    p.classList.toggle('done',!!passport[p.dataset.station]);
+  }
+
+  $('#cards').innerHTML=STATIONS.map(s=>`
+    <button class="card ${passport[s.id]?'done':''}"
+            data-card="${s.id}">
+      <span class="card-icon">${s.icon}</span>
+      <span>
+        <small>ESCALE ${s.n} ${passport[s.id]?'· ✓':''}</small>
+        <strong>${s.name}</strong>
+      </span>
+    </button>
+  `).join('');
+
+  for(const b of $$('[data-card]')){
+    b.onclick=()=>showInfo(b.dataset.card);
+  }
+}
+
+function select(id){
+  const s=byId(id);
+  if(!s)return;
+  selected=id;
+
+  for(const p of markers()){
+    const active=p.dataset.station===id;
+    p.classList.toggle('selected',active);
+    p.setAttribute('aria-pressed',String(active));
+  }
+
+  $('#panel').innerHTML=`
+    <small class="eyebrow">ESCALE ${s.n} / 16</small>
+    <span class="panel-icon">${s.icon}</span>
+    <h3>${s.name}</h3>
+    <p>${esc(s.text.split('. ')[0])}.</p>
+    <button class="primary" id="play">
+      ${passport[id]?'Rejouer au défi':'Jouer à cette escale'} ↗
+    </button>
+    <button id="explanation" style="width:100%;margin-top:10px">
+      Lire l’explication complète
+    </button>
+    <div class="panel-controls">
+      <button id="previous" aria-label="Escale précédente">←</button>
+      <small>${passport[id]?'✓ Tampon obtenu':'À découvrir'}</small>
+      <button id="next" aria-label="Escale suivante">→</button>
+    </div>
+  `;
+
+  $('#play').onclick=()=>startGame(id);
+  $('#explanation').onclick=()=>showInfo(id);
+  $('#previous').onclick=()=>select(STATIONS[(s.n+14)%16].id);
+  $('#next').onclick=()=>select(STATIONS[s.n%16].id);
+}
+
+function setZoom(value){
+  zoom=Math.max(1,Math.min(4,value));
+  $('#park-svg').style.width=zoom===1?'100%':zoom*100+'%';
+  $('#viewport').classList.toggle('zoomed',zoom>1);
+  $('#zoom-label').textContent=Math.round(zoom*100)+' %';
+  $('#zoom-out').disabled=zoom===1;
+  $('#zoom-in').disabled=zoom===4;
+}
+
+function toggleExpanded(){
+  expanded=!expanded;
+  $('#layout').classList.toggle('expanded',expanded);
+  document.body.classList.toggle('locked',expanded);
+  $('#expand').textContent=expanded?'×':'⤢';
+  $('#expand').setAttribute(
+    'aria-label',
+    expanded
+      ?'Réduire l’affichage du parc'
+      :'Agrandir l’affichage du parc'
+  );
+}
+
+/* =========================
+   BALADE DANS LA RIVIÈRE
+   ========================= */
+
+function stopBoat(){
+  boatRunning=false;
+  cancelAnimationFrame(boatFrame);
+  boatLast=0;
+  $('#boat-toggle').textContent='▷ Faire un tour en bouée';
+}
+
+function toggleBoat(){
+  if(boatRunning){
+    stopBoat();
+    return;
+  }
+  boatRunning=true;
+  boatLast=0;
+  $('#boat-toggle').textContent='Ⅱ Mettre la balade en pause';
+  boatFrame=requestAnimationFrame(tickBoat);
+}
+
+function tickBoat(now){
+  if(!boatRunning)return;
+
+  const dt=boatLast
+    ?Math.min((now-boatLast)/1000,.1)
+    :0;
+
+  boatLast=now;
+
+  if(!document.hidden&&!$('#dialog').open){
+    const route=$('#river-route');
+    const len=route.getTotalLength();
+
+    boatOffset=(boatOffset+dt*25)%len;
+
+    const p=route.getPointAtLength(boatOffset);
+    const p2=route.getPointAtLength((boatOffset+2)%len);
+    const angle=Math.atan2(p2.y-p.y,p2.x-p.x)*180/Math.PI;
+
+    $('#visitor-boat').setAttribute(
+      'transform',
+      `translate(${p.x} ${p.y}) rotate(${angle})`
+    );
+  }
+
+  boatFrame=requestAnimationFrame(tickBoat);
+}
+
+/* =========================
+   FENÊTRES D’INFORMATION
+   ========================= */
+
+function cleanGame(){
+  cancelAnimationFrame(raceFrame);
+  raceFrame=0;
+  raceLast=0;
+  G=null;
+}
+
+function openDialog(title,html){
+  cleanGame();
+  stopBoat();
+  $('#dialog-title').textContent=title;
+  $('#dialog-body').innerHTML=html;
+
+  if(!$('#dialog').open)$('#dialog').showModal();
+  $('#dialog').scrollTop=0;
+}
+
+function showInfo(id){
+  const s=byId(id);
+
+  openDialog(s.name,`
+    <span class="eyebrow">MON EXPLICATION · ESCALE ${s.n}</span>
+    <p>${esc(s.text)}</p>
+    <div class="actions">
+      <button id="locate">Voir sur le plan</button>
+      <button class="primary" id="launch">Jouer au défi</button>
+    </div>
+  `);
+
+  $('#locate').onclick=()=>{
+    $('#dialog').close();
+    select(id);
+    $('#layout').scrollIntoView({block:'nearest'});
+  };
+
+  $('#launch').onclick=()=>startGame(id);
+}
+
+function showProject(){
+  openDialog('Mon parc d’attractions biologique',`
+    <p>
+      Mon parc est une grande étendue d’eau parsemée d’îles.
+      Chaque attraction représente une structure ou un mécanisme biologique.
+    </p>
+    ${STATIONS.map(s=>`
+      <article>
+        <h3>${s.n}. ${s.name}</h3>
+        <p>${esc(s.text)}</p>
+      </article>
+    `).join('')}
+  `);
+}
+
+function showPassport(){
+  openDialog('Mon carnet d’exploration',`
+    <p>
+      ${total()} découvertes sur 16.
+      Les tampons sont enregistrés sur ce navigateur.
+    </p>
+    <div class="passport-grid">
+      ${STATIONS.map(s=>`
+        <button class="${passport[s.id]?'done':''}"
+                data-stamp="${s.id}">
+          <span>${passport[s.id]?s.icon:'?'}</span>
+          ${s.short}
+        </button>
+      `).join('')}
+    </div>
+    <div class="actions">
+      <button id="reset">Recommencer le carnet</button>
+    </div>
+  `);
+
+  for(const b of $$('[data-stamp]')){
+    b.onclick=()=>startGame(b.dataset.stamp);
+  }
+
+  $('#reset').onclick=()=>{
+    openDialog('Recommencer le carnet ?',`
+      <p>Tous les tampons de ce navigateur seront effacés.</p>
+      <div class="actions">
+        <button id="keep">Garder mes tampons</button>
+        <button id="erase">Effacer les tampons</button>
+      </div>
+    `);
+
+    $('#keep').onclick=showPassport;
+
+    $('#erase').onclick=()=>{
+      passport={};
+      save();
+      updateProgress();
+      select(selected);
+      showPassport();
+    };
+  };
+}
+
+/* =========================
+   OUTILS POUR LES ACTIVITÉS
+   ========================= */
+
+function feedback(text,error=false){
+  const el=$('#feedback');
+  if(el){
+    el.textContent=text;
+    el.classList.toggle('error',error);
+  }
+}
+
+function choices(options){
+  return `
+    <div class="actions">
+      ${options.map(([value,label])=>`
+        <button data-value="${esc(value)}">${label}</button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function bindChoices(fn){
+  for(const b of $$('[data-value]',$('#dialog-body'))){
+    b.onclick=()=>{
+      if(G&&!G.done)fn(b.dataset.value,b);
+    };
+  }
+}
+
+function base(
+  instructions,
+  html,
+  n=0,
+  max=1,
+  note='Une représentation simplifiée pour apprendre. Tu peux réessayer autant de fois que tu veux.'
+){
+  const s=byId(G.id);
+
+  $('#dialog-body').innerHTML=`
+    <p>${instructions}</p>
+    <div class="status">
+      <span>${s.short}</span>
+      <b>${n} / ${max}</b>
+    </div>
+    ${html}
+    <p id="feedback" class="feedback"
+       role="status" aria-live="polite"></p>
+    <p class="note">${note}</p>
+  `;
+}
+
+function win(){
+  if(!G||G.done)return;
+
+  const id=G.id;
+  const s=byId(id);
+
+  G.done=true;
+  cancelAnimationFrame(raceFrame);
+  passport[id]=true;
+
+  save();
+  updateProgress();
+  select(id);
+
+  $('#dialog-body').innerHTML=`
+    <div class="medal">${s.icon}</div>
+    <h3 style="text-align:center">Défi réussi !</h3>
+    <p style="text-align:center">
+      Un nouveau tampon pour ton carnet : ${total()} / 16.
+    </p>
+    <p>${esc(s.text)}</p>
+    <div class="actions">
+      <button id="again">Rejouer</button>
+      <button class="primary" id="continue">
+        ${total()===16?'Voir mon carnet':'Prochaine découverte'} ↗
+      </button>
+    </div>
+  `;
+
+  $('#again').onclick=()=>startGame(id);
+
+  $('#continue').onclick=()=>{
+    const next=STATIONS.find(s=>!passport[s.id]);
+    next?showInfo(next.id):showPassport();
+  };
+}
+
+function advance(max){
+  G.n++;
+  if(G.n>=max)win();
+  else renderGame();
+}
+
+function startGame(id){
+  const s=byId(id);
+  select(id);
+  openDialog(s.name,'');
+
+  G={id,n:0,done:false};
+
+  if(id==='photosynthese'){
+    Object.assign(G,{sun:false,water:0,co2:0});
+  }
+  if(id==='flagelle')G.energy=4;
+  if(id==='mitochondries'){
+    Object.assign(G,{glucose:false,oxygen:false});
+  }
+  if(id==='vacuole')G.level=20;
+  if(id==='paroi')G.panels=new Set();
+
+  if(id==='reticulum'){
+    Object.assign(G,{
+      lane:1,
+      progress:0,
+      paused:true,
+      time:0,
+      spawn:0,
+      slow:0,
+      obstacles:[]
+    });
+    renderRace();
+    return;
+  }
+
+  renderGame();
+}
+
+/* =========================
+   LES 16 ACTIVITÉS
+   ========================= */
+
+function renderGame(){
+  const n=G.n;
+  const id=G.id;
+
+  if(id==='cils'){
+    const target=n%2?'droite':'gauche';
+
+    base(
+      'Coordonne les battements des cils : alterne gauche et droite en suivant la flèche.',
+      `
+        <div class="stage">
+          <span class="big-symbol">${target==='gauche'?'←':'→'}</span>
+          <strong>Vers la ${target}</strong>
+        </div>
+        ${choices([
+          ['gauche','← Gauche'],
+          ['droite','Droite →']
+        ])}
+      `,
+      n,8,
+      'Les vrais cils déplacent une cellule ou un liquide ; ils ne détectent pas les métaux.'
+    );
+
+    bindChoices(v=>
+      v===target
+        ?advance(8)
+        :feedback('Suis la flèche pour le prochain battement.',true)
+    );
+  }
+
+  else if(id==='paroi'){
+    base(
+      'Construis les six panneaux du dôme protecteur.',
+      `
+        <div class="stage tile-grid">
+          ${Array.from({length:6},(_,i)=>`
+            <button class="tile ${G.panels.has(i)?'selected-answer':''}"
+                    data-value="${i}"
+                    ${G.panels.has(i)?'disabled':''}>
+              ${G.panels.has(i)?'✓':'＋'}<br>Panneau ${i+1}
+            </button>
+          `).join('')}
+        </div>
+      `,
+      G.panels.size,6
+    );
+
+    bindChoices(v=>{
+      G.panels.add(Number(v));
+      G.panels.size===6?win():renderGame();
+    });
+  }
+
+  else if(id==='decomposition'){
+    const items=[
+      ['🍎','Trognon de pomme','compost'],
+      ['🧴','Bouteille en plastique vide','recyclage'],
+      ['🍂','Feuilles mortes','compost'],
+      ['🥫','Boîte de conserve vide','recyclage'],
+      ['🍌','Peau de banane','compost'],
+      ['📰','Journal propre','recyclage']
+    ];
+
+    const item=items[n];
+
+    base(
+      'Trie les matières organiques et les objets recyclables.',
+      `
+        <div class="stage">
+          <span class="big-symbol">${item[0]}</span>
+          <strong>${item[1]}</strong>
+        </div>
+        ${choices([
+          ['compost','♻ Compost'],
+          ['recyclage','↻ Recyclage']
+        ])}
+      `,
+      n,6,
+      'Les consignes de tri peuvent varier selon ta municipalité. Le plastique et le verre ne deviennent pas du compost.'
+    );
+
+    bindChoices(v=>
+      v===item[2]
+        ?advance(6)
+        :feedback(
+          'Réessaie : cette matière va dans l’autre catégorie pour ce jeu.',
+          true
+        )
+    );
+  }
+
+  else if(id==='photosynthese'){
+    base(
+      'Apporte la lumière, puis six unités d’eau et six unités de CO₂.',
+      `
+        <div class="stage">
+          <span class="big-symbol">🌱</span>
+          <strong>
+            ${G.sun?'☀ Lumière reçue':'En attente de lumière'}
+          </strong>
+          <p>Eau : ${G.water}/6 · CO₂ : ${G.co2}/6</p>
+        </div>
+        ${choices([
+          ['sun','☀ Lumière'],
+          ['water','💧 Eau'],
+          ['co2','CO₂']
+        ])}
+      `,
+      G.water+G.co2,12,
+      'Ces quantités représentent une équation simplifiée. Les plantes fabriquent des sucres et libèrent du dioxygène.'
+    );
+
+    bindChoices(v=>{
+      if(v==='sun'){
+        G.sun=true;
+      }else if(!G.sun){
+        feedback('Apporte d’abord la lumière.',true);
+        return;
+      }else if(v==='water'){
+        G.water=Math.min(6,G.water+1);
+      }else{
+        G.co2=Math.min(6,G.co2+1);
+      }
+
+      G.sun&&G.water===6&&G.co2===6?win():renderGame();
+    });
+  }
+
+  else if(id==='osmose'){
+    const pairs=[[2,6],[8,3],[1,5]];
+    const pair=pairs[n];
+    const answer=pair[0]<pair[1]?'droite':'gauche';
+
+    base(
+      'La membrane laisse passer l’eau, mais pas le soluté. Vers quel côté l’eau se déplace-t-elle globalement ?',
+      `
+        <div class="stage tile-grid" style="grid-template-columns:1fr 1fr">
+          <div>
+            <strong>Gauche</strong>
+            <p>${'● '.repeat(pair[0])}</p>
+          </div>
+          <div>
+            <strong>Droite</strong>
+            <p>${'● '.repeat(pair[1])}</p>
+          </div>
+        </div>
+        ${choices([
+          ['gauche','← Vers la gauche'],
+          ['droite','Vers la droite →']
+        ])}
+      `,
+      n,3,
+      'Dans ce modèle à volumes initiaux égaux, l’eau se déplace globalement vers le côté le plus concentré en soluté.'
+    );
+
+    bindChoices(v=>
+      v===answer
+        ?advance(3)
+        :feedback(
+          'Compare les concentrations : cherche le côté qui contient le plus de soluté.',
+          true
+        )
+    );
+  }
+
+  else if(id==='circulation'){
+    const destinations=['Muscles','Cerveau','Peau','Reins'];
+
+    base(
+      'Livre une bulle de dioxygène à la destination indiquée.',
+      `
+        <div class="stage">
+          <span class="big-symbol">O₂ →</span>
+          <strong>${destinations[n]}</strong>
+        </div>
+        ${choices(destinations.map(x=>[x,x]))}
+      `,
+      n,4,
+      'Le sang apporte notamment du dioxygène aux tissus. Ce parcours est une simplification du transport.'
+    );
+
+    bindChoices(v=>
+      v===destinations[n]
+        ?advance(4)
+        :feedback('Vérifie la destination de cette livraison.',true)
+    );
+  }
+
+  else if(id==='flagelle'){
+    base(
+      'Utilise de l’énergie pour propulser la cellule jusqu’à l’arrivée.',
+      `
+        <div class="stage">
+          <span class="big-symbol">∿ →</span>
+          <strong>Énergie : ${G.energy}/4</strong>
+          <p>Déplacement : ${n}/8</p>
+          <div class="meter">
+            <span style="width:${n/8*100}%"></span>
+          </div>
+        </div>
+        ${choices([
+          ['move','Propulser la cellule'],
+          ['charge','Recharger l’énergie']
+        ])}
+      `,
+      n,8,
+      'Un flagelle utilise de l’énergie ; il ne crée pas cette énergie.'
+    );
+
+    bindChoices(v=>{
+      if(v==='charge'){
+        G.energy=4;
+        renderGame();
+      }else if(G.energy>0){
+        G.energy--;
+        advance(8);
+      }else{
+        feedback('Recharge l’énergie avant de continuer.',true);
+      }
+    });
+  }
+
+  else if(id==='controle'){
+    const cases=[
+      ['L’ADN a été copié et les vérifications sont réussies.',true],
+      ['L’ADN est endommagé et doit être réparé.',false],
+      ['La copie de l’ADN est encore incomplète.',false],
+      ['Les chromosomes sont correctement attachés au fuseau.',true],
+      ['Un chromosome est mal attaché au fuseau.',false]
+    ];
+    const c=cases[n];
+
+    base(
+      'Décide si la cellule peut poursuivre le cycle ou si elle doit s’arrêter.',
+      `
+        <div class="stage">
+          <span class="big-symbol">✓ ?</span>
+          <strong>${c[0]}</strong>
+        </div>
+        ${choices([
+          ['go','Continuer →'],
+          ['stop','Arrêter et vérifier']
+        ])}
+      `,
+      n,5
+    );
+
+    bindChoices(v=>
+      (v==='go')===c[1]
+        ?advance(5)
+        :feedback(
+          'Un problème doit être vérifié avant de laisser la cellule continuer.',
+          true
+        )
+    );
+  }
+
+  else if(id==='noyau'){
+    const dna='ATCGGCTA';
+    const match={A:'T',T:'A',C:'G',G:'C'};
+
+    base(
+      'Complète les paires de bases de l’ADN : A avec T, C avec G.',
+      `
+        <div class="stage">
+          <div class="sequence">
+            ${[...dna].map((x,i)=>`
+              <span class="base ${i===n?'active':''}">${x}</span>
+            `).join('')}
+          </div>
+          <div class="sequence" style="margin-top:12px">
+            ${[...dna].map((x,i)=>`
+              <span class="base ${i<n?'filled':''}">
+                ${i<n?match[x]:'?'}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+        ${choices(['A','T','C','G'].map(x=>[x,x]))}
+      `,
+      n,8
+    );
+
+    bindChoices(v=>
+      v===match[dna[n]]
+        ?advance(8)
+        :feedback('Rappelle-toi : A–T et C–G.',true)
+    );
+  }
+
+  else if(id==='mitochondries'){
+    base(
+      'Apporte du glucose et du dioxygène, puis lance la production d’ATP.',
+      `
+        <div class="stage">
+          <strong>
+            ${G.glucose?'✓':'＋'} Glucose · ${G.oxygen?'✓':'＋'} O₂
+          </strong>
+          <span class="big-symbol">→ ATP</span>
+        </div>
+        ${choices([
+          ['glucose','Ajouter du glucose'],
+          ['oxygen','Ajouter du dioxygène'],
+          ['produce','Produire de l’ATP']
+        ])}
+      `,
+      n,3,
+      'Les trois cycles sont un objectif de jeu, pas un rendement biologique.'
+    );
+
+    bindChoices(v=>{
+      if(v==='glucose'){
+        G.glucose=true;
+      }else if(v==='oxygen'){
+        G.oxygen=true;
+      }else{
+        if(!G.glucose||!G.oxygen){
+          feedback('Il manque du glucose ou du dioxygène.',true);
+          return;
+        }
+
+        G.glucose=false;
+        G.oxygen=false;
+        G.n++;
+
+        if(G.n===3){
+          win();
+          return;
+        }
+      }
+
+      renderGame();
+    });
+  }
+
+  else if(id==='golgi'){
+    const cargo=[
+      'Membrane','Lysosome','Extérieur',
+      'Lysosome','Membrane','Extérieur'
+    ];
+
+    base(
+      'Trie chaque cargaison : choisis le toboggan qui mène à sa destination.',
+      `
+        <div class="stage">
+          <span class="big-symbol">📦</span>
+          <strong>Destination : ${cargo[n]}</strong>
+        </div>
+        ${choices([
+          ['Membrane','〰 Membrane'],
+          ['Lysosome','〰 Lysosome'],
+          ['Extérieur','〰 Extérieur']
+        ])}
+      `,
+      n,6,
+      'Le Golgi modifie, trie et emballe des molécules. Les glissades représentent leur acheminement.'
+    );
+
+    bindChoices(v=>
+      v===cargo[n]
+        ?advance(6)
+        :feedback('La destination est inscrite sur la cargaison.',true)
+    );
+  }
+
+  else if(id==='ribosomes'){
+    const recipe=['GLY','ALA','SER','GLY','VAL'];
+
+    base(
+      'Assemble les acides aminés dans l’ordre indiqué par la recette.',
+      `
+        <div class="stage">
+          <p>Recette : ${recipe.join(' → ')}</p>
+          <div class="sequence">
+            ${recipe.map((x,i)=>`
+              <span class="base ${i<n?'filled':''}">
+                ${i<n?x:'?'}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+        ${choices(['GLY','ALA','SER','VAL'].map(x=>[x,x]))}
+      `,
+      n,5,
+      'GLY, ALA, SER et VAL sont des abréviations d’acides aminés. Les ribosomes les assemblent selon une instruction.'
+    );
+
+    bindChoices(v=>
+      v===recipe[n]
+        ?advance(5)
+        :feedback('Choisis le prochain acide aminé de la recette.',true)
+    );
+  }
+
+  else if(id==='lysosome'){
+    const shapes=['▲','●','■'];
+
+    base(
+      'Associe chaque molécule à l’enzyme adaptée à sa forme.',
+      `
+        <div class="stage">
+          <span class="big-symbol">${shapes[n]}</span>
+          <strong>Quelle enzyme convient ?</strong>
+        </div>
+        ${choices(shapes.map(x=>[x,'Enzyme '+x]))}
+      `,
+      n,3,
+      'La forme est une simplification de la spécificité des enzymes. Le milieu acide du lysosome aide certaines enzymes à fonctionner.'
+    );
+
+    bindChoices(v=>
+      v===shapes[n]
+        ?advance(3)
+        :feedback('Cherche l’enzyme dont la forme correspond.',true)
+    );
+  }
+
+  else if(id==='vacuole'){
+    const [lo,hi]=[[65,80],[35,50],[75,90]][n];
+
+    base(
+      'Ajuste la réserve d’eau pour atteindre la zone cible, puis valide.',
+      `
+        <div class="stage">
+          <strong>Cible : ${lo}–${hi} %</strong>
+          <div class="tank">
+            <div id="tank-water" class="tank-water"
+                 style="height:${G.level}%"></div>
+            <div class="tank-target"
+                 style="bottom:${lo}%;height:${hi-lo}%"></div>
+            <span id="tank-label" class="tank-label">${G.level} %</span>
+          </div>
+          <label for="level">Niveau d’eau</label><br>
+          <input id="level" class="water-slider"
+                 type="range" min="0" max="100" value="${G.level}">
+        </div>
+        ${choices([['check','Valider la réserve']])}
+      `,
+      n,3,
+      'Ces pourcentages sont des objectifs de jeu, pas des valeurs biologiques.'
+    );
+
+    $('#level').oninput=e=>{
+      G.level=Number(e.target.value);
+      $('#tank-water').style.height=G.level+'%';
+      $('#tank-label').textContent=G.level+' %';
+    };
+
+    bindChoices(()=>
+      G.level>=lo&&G.level<=hi
+        ?advance(3)
+        :feedback('Ajuste le curseur pour atteindre la zone indiquée.',true)
+    );
+  }
+
+  else if(id==='cytoplasme'){
+    const clues=[
+      ['noyau','Contient la majeure partie de l’ADN.'],
+      ['mitochondrie','Produit une grande partie de l’ATP.'],
+      ['ribosome','Assemble les protéines.'],
+      ['golgi','Trie et emballe certaines molécules.']
+    ];
+
+    base(
+      'Lis l’indice et retrouve la bonne structure dans la cellule.',
+      `
+        <div class="stage">
+          <strong>${clues[n][1]}</strong>
+          <div class="cell">
+            ${[
+              ['noyau','Noyau'],
+              ['mitochondrie','Mitochondrie'],
+              ['ribosome','Ribosome'],
+              ['golgi','Golgi']
+            ].map(([id,label])=>`
+              <button data-value="${id}">${label}</button>
+            `).join('')}
+          </div>
+        </div>
+      `,
+      n,4,
+      'Le cytoplasme comprend le cytosol et les structures situées hors du noyau.'
+    );
+
+    bindChoices(v=>
+      v===clues[n][0]
+        ?advance(4)
+        :feedback('Relis l’indice et réessaie.',true)
+    );
+  }
+}
+
+/* =========================
+   COURSE DU R.E.
+   ========================= */
+
+function renderRace(){
+  base(
+    'Guide ta bouée jusqu’à l’arrivée. Change de voie avec ↑ et ↓, W et S, ou les boutons. Les obstacles te ralentissent.',
+    `
+      <div class="status">
+        <span>Course du R.E.</span>
+        <b id="race-distance">0 / 300 m</b>
+      </div>
+      <div class="meter">
+        <span id="race-progress"></span>
+      </div>
+      <div class="stage race-stage" id="race-stage">
+        <div class="race-track"></div>
+        <div class="race-player" id="race-player"
+             aria-label="Ta bouée"></div>
+      </div>
+      <div class="actions">
+        <button id="race-up" aria-label="Monter d’une voie">↑</button>
+        <button id="race-down" aria-label="Descendre d’une voie">↓</button>
+        <button class="primary" id="race-pause">Lancer la course</button>
+      </div>
+    `,
+    0,1,
+    'Le jeu représente un transport. Le R.E. participe aussi à la fabrication et au traitement de molécules.'
+  );
+
+  $('#race-up').onclick=()=>moveRace(-1);
+  $('#race-down').onclick=()=>moveRace(1);
+
+  $('#race-pause').onclick=()=>{
+    G.paused=!G.paused;
+    $('#race-pause').textContent=G.paused?'Reprendre':'Pause';
+
+    if(!raceFrame){
+      raceLast=0;
+      raceFrame=requestAnimationFrame(tickRace);
+    }
+  };
+}
+
+function moveRace(direction){
+  if(!G||G.id!=='reticulum'||G.done)return;
+
+  G.lane=Math.max(0,Math.min(2,G.lane+direction));
+  $('#race-player').style.top=(16.666+G.lane*33.333)+'%';
+}
+
+function tickRace(now){
+  if(!G||G.id!=='reticulum'||G.done)return;
+
+  const dt=raceLast
+    ?Math.min((now-raceLast)/1000,.08)
+    :0;
+
+  raceLast=now;
+
+  if(!G.paused&&!document.hidden){
+    G.time+=dt;
+
+    if(G.time>=G.spawn){
+      G.spawn=G.time+1.6;
+
+      const el=document.createElement('span');
+      const lane=Math.floor(Math.random()*3);
+
+      el.className='race-obstacle';
+      el.style.top=(16.666+lane*33.333)+'%';
+
+      $('#race-stage').appendChild(el);
+
+      G.obstacles.push({
+        el,
+        lane,
+        x:105,
+        hit:false
+      });
+    }
+
+    for(const o of G.obstacles){
+      o.x-=26*dt;
+      o.el.style.left=o.x+'%';
+
+      if(!o.hit&&o.lane===G.lane&&o.x>9&&o.x<19){
+        o.hit=true;
+        G.slow=G.time+.7;
+        feedback('Obstacle touché : ta bouée ralentit un instant.');
+      }
+    }
+
+    G.obstacles=G.obstacles.filter(o=>{
+      if(o.x< -8){
+        o.el.remove();
+        return false;
+      }
+      return true;
+    });
+
+    G.progress=Math.min(
+      100,
+      G.progress+dt*(G.time<G.slow?2:5)
+    );
+
+    $('#race-stage').classList.toggle('race-hit',G.time<G.slow);
+    $('#race-progress').style.width=G.progress+'%';
+    $('#race-distance').textContent=
+      Math.round(G.progress*3)+' / 300 m';
+
+    if(G.progress>=100){
+      win();
+      return;
+    }
+  }
+
+  raceFrame=requestAnimationFrame(tickRace);
+}
+
+/* =========================
+   DÉMARRAGE
+   ========================= */
+
+$('#viewport').innerHTML=makeParkMap();
+
+for(const p of markers()){
+  p.onclick=()=>select(p.dataset.station);
+
+  p.onkeydown=e=>{
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      select(p.dataset.station);
+    }
+  };
+}
+
+$('#zoom-out').onclick=()=>setZoom(zoom-.5);
+$('#zoom-in').onclick=()=>setZoom(zoom+.5);
+$('#expand').onclick=toggleExpanded;
+$('#boat-toggle').onclick=toggleBoat;
+
+$('#people-toggle').onclick=()=>{
+  const paused=$('#park-svg').classList.toggle('visitors-paused');
+
+  $('#people-toggle').setAttribute('aria-pressed',String(paused));
+  $('#people-toggle').textContent=
+    paused?'▷ Animer les passants':'Ⅱ Pause des passants';
+};
+
+$('#project-button').onclick=showProject;
+$('#passport-button').onclick=showPassport;
+$('#close-dialog').onclick=()=>$('#dialog').close();
+$('#dialog').addEventListener('close',cleanGame);
+
+document.addEventListener('keydown',e=>{
+  if(G?.id==='reticulum'&&!G.done){
+    if(['ArrowUp','w','W'].includes(e.key)){
+      e.preventDefault();
+      moveRace(-1);
+    }
+
+    if(['ArrowDown','s','S'].includes(e.key)){
+      e.preventDefault();
+      moveRace(1);
+    }
+  }
+
+  if(e.key==='Escape'&&expanded&&!$('#dialog').open){
+    toggleExpanded();
+  }
+});
+
+select('noyau');
+setZoom(1);
+updateProgress();
+</script>
+</body>
+</html>
